@@ -9,6 +9,7 @@ from agents.base_agent import BaseAgent
 from agents.crawler_agent import CrawlerAgent
 from agents.analyzer_agent import AnalyzerAgent
 from agents.report_agent import ReportAgent
+from agents.evaluation_agent import EvaluationAgent
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ class Orchestrator:
         # Initialize agent instances
         self.crawler = CrawlerAgent(self.config.get('crawler_config', {}))
         self.analyzer = AnalyzerAgent(self.config.get('analyzer_config', {}))
+        self.evaluator = EvaluationAgent(self.config.get('evaluation_config', {}))
         self.reporter = ReportAgent(self.config.get('report_config', {}))
         
         # Processing state
@@ -99,6 +101,10 @@ class Orchestrator:
             
             self.analyzed_articles = self.analyzer.process(filtered_articles)
             self.update_status(f"Successfully analyzed {len(self.analyzed_articles)} articles")
+
+            # Step 2b: Evaluate against selection criteria
+            self.update_status("Evaluating articles against criteria...")
+            self.analyzed_articles = self.evaluator.evaluate(self.analyzed_articles)
             
             # Step 3: Generate reports
             self.update_status("Generating reports...")
