@@ -228,6 +228,24 @@ def main():
                         for point in key_points:
                             st.markdown(f"• {point}")
 
+                    # Criteria dashboard
+                    criteria = article.get('criteria_results', [])
+                    if criteria:
+                        crit_df = pd.DataFrame([
+                            {
+                                'Criteria': c.get('criteria'),
+                                'Status': '✅' if c.get('status') else '❌',
+                                'Notes': c.get('notes')
+                            }
+                            for c in criteria
+                        ])
+                        st.table(crit_df)
+
+                    # Assessment summary
+                    assessment = article.get('assessment', 'N/A')
+                    score = article.get('assessment_score', 0)
+                    st.markdown(f"**Assessment:** {assessment} (Score: {score}%)")
+
     except Exception as e:
         st.error(f"Application error: {str(e)}")
         logger.error(f"Application error: {str(e)}")

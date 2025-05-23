@@ -199,6 +199,31 @@ class ReportAgent(BaseAgent):
                     for point in key_points:
                         content.append(Paragraph(f"• {point}", article_style))
                 
+                # Criteria table
+                crit_results = article.get('criteria_results', [])
+                if crit_results:
+                    table_data = [["Criteria", "Status", "Notes"]]
+                    for crit in crit_results:
+                        status = "✅" if crit.get('status') else "❌"
+                        table_data.append([
+                            crit.get('criteria', ''),
+                            status,
+                            crit.get('notes', '')
+                        ])
+                    table = Table(table_data, colWidths=[2.5*inch, 0.6*inch, 3.9*inch])
+                    table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('GRID', (0, 0), (-1, -1), 0.25, colors.grey),
+                        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 8),
+                    ]))
+                    content.append(table)
+                    content.append(Spacer(1, 6))
+
+                assessment = article.get('assessment', 'N/A')
+                score = article.get('assessment_score', 0)
+                content.append(Paragraph(f"<b>Assessment:</b> {assessment} (Score: {score}%)", article_style))
+
                 # Add space between articles
                 content.append(Spacer(1, 20))
             
@@ -232,8 +257,13 @@ class ReportAgent(BaseAgent):
                     'Date': article.get('date', ''),
                     'Source': article.get('source', ''),
                     'Takeaway': article.get('takeaway', ''),
-                    'Key Points': key_points_str
+                    'Assessment': article.get('assessment', ''),
+                    'Score': article.get('assessment_score', 0),
+                    'Key Points': key_points_str,
                 }
+                for idx, crit in enumerate(article.get('criteria_results', []), 1):
+                    row[f'C{idx}'] = 'Y' if crit.get('status') else 'N'
+                    row[f'C{idx} Notes'] = crit.get('notes', '')
                 data.append(row)
                 
             # Create DataFrame and CSV
@@ -266,8 +296,13 @@ class ReportAgent(BaseAgent):
                     'Date': article.get('date', ''),
                     'Source': article.get('source', ''),
                     'Takeaway': article.get('takeaway', ''),
-                    'Key Points': key_points_str
+                    'Assessment': article.get('assessment', ''),
+                    'Score': article.get('assessment_score', 0),
+                    'Key Points': key_points_str,
                 }
+                for idx, crit in enumerate(article.get('criteria_results', []), 1):
+                    row[f'C{idx}'] = 'Y' if crit.get('status') else 'N'
+                    row[f'C{idx} Notes'] = crit.get('notes', '')
                 data.append(row)
                 
             # Create DataFrame and Excel
