@@ -64,7 +64,7 @@ class AnalyzerAgent(BaseAgent):
             **article,
             **summary_data
         })
-        
+
         # Combine everything
         return {
             **article,
@@ -72,6 +72,12 @@ class AnalyzerAgent(BaseAgent):
             'ai_validation': validation.get('reason', 'Unknown'),
             'ai_confidence': validation.get('confidence', 0)
         }
+
+    def is_relevant(self, analyzed_article: Dict) -> bool:
+        """Determine if an analyzed article should be kept."""
+        confidence = analyzed_article.get('ai_confidence', 0)
+        validation = analyzed_article.get('ai_validation')
+        return confidence >= 40 and bool(validation)
     
     def summarize_article(self, content: str) -> Optional[Dict[str, Any]]:
         """Generate a summary and takeaway for an article with caching"""
